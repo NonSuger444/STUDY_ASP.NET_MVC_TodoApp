@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        @*ログイン状態を判断*@
+        @if (Request.IsAuthenticated)
+        {
+            @*SignOutリンクを生成*@
+            @Html.ActionLink("SignOut", "SignOut", new { Controller = "Login" })
+
+            @*Administratorsロールでログインしているかを確認*@
+            if (User.IsInRole("Administrators"))
+                {
+                    @*SignOutリンクとの間に仕切りをつける*@
+                    <span>|</span>
+                    @*ユーザー管理リンクを生成*@
+                    @Html.ActionLink("ユーザー管理", "Index", new { Controller = "Users" })
+                }
+        }
+    </div>
+    <div class="container">
+        @RenderBody()
+    </div>
+</body>
+</html>
