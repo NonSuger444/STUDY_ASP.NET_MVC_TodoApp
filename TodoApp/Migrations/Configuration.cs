@@ -70,11 +70,15 @@
                 Users = new List<User>()
             };
 
+            // 管理者ユーザー => パスワードをハッシュ化
+            admin.Password = new CustomMembershipProvider().GeneratePasswordHash(admin.UserName, admin.Password);
             // 管理者ユーザー > ロール => 管理者ロールを追加
             admin.Roles.Add(administrators);
             // 管理者ロール > ユーザー => 管理者ユーザーを追加
             administrators.Users.Add(admin);
 
+            // 一般ユーザー => パスワードをハッシュ化
+            sato.Password = new CustomMembershipProvider().GeneratePasswordHash(sato.UserName, sato.Password);
             // 一般ユーザー > ロール => 一般ユーザーロールを追加
             sato.Roles.Add(users);
             // 一般ユーザーロール > ユーザー => 一般ユーザーを追加

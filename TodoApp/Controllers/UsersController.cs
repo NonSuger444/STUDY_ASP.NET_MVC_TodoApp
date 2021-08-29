@@ -18,6 +18,11 @@ namespace TodoApp.Controllers
         /// </summary>
         private TodoesContext db = new TodoesContext();
 
+        /// <summary>
+        /// CustomMembershipProvider情報
+        /// </summary>
+        private readonly CustomMembershipProvider membershipProvider = new CustomMembershipProvider();
+
         // GET: Users
         public ActionResult Index()
         {
@@ -62,7 +67,10 @@ namespace TodoApp.Controllers
             {
                 // ロール情報を設定
                 user.Roles = roles;
- 
+
+                // パスワードをハッシュ化
+                user.Password = this.membershipProvider.GeneratePasswordHash(user.UserName, user.Password);
+
                 // DBにuser情報を設定
                 db.Users.Add(user);
                 // 設定した情報をDBに登録
@@ -112,9 +120,16 @@ namespace TodoApp.Controllers
                 if (dbUser == null)
                     return HttpNotFound();
 
-                // DBから取得した情報に画面で入力した情報を反映
-                dbUser.UserName = user.UserName;
-                dbUser.Password = user.Password;
+                // DBから取得したユーザー名 => 画面で入力したユーザー名へ変換
+                // ユーザー名の変更がある場合に限る
+                if (!dbUser.UserName.Equals(user.UserName))
+                    dbUser.UserName = user.UserName;
+
+                // DBから取得したパスワード => 画面で入力したパスワードへ変換
+                // パスワードの変更がある場合に限る => ★ ハッシュ化された内容を画面に入力してしまうと、ログイン時にパスワードが一致しなくなると思う
+                if (!dbUser.Password.Equals(user.Password))
+                    // DBに反映するのはハッシュ化されたパスワード
+                    dbUser.Password = this.membershipProvider.GeneratePasswordHash(user.UserName, user.Password);
 
                 // DBに登録されているロール情報をクリア
                 dbUser.Roles.Clear();
