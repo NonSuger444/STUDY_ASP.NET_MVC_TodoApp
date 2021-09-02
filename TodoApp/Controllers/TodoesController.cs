@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -14,7 +15,15 @@ namespace TodoApp.Controllers
         // GET: Todoes
         public ActionResult Index()
         {
-            return View(db.Todoes.ToList());
+            // DBから現在ログインしているユーザーの情報を取得
+            User user = db.Users.Where(item => item.UserName == User.Identity.Name).FirstOrDefault();
+
+            // 取得してきたUser情報がNullでなければ、そのUserのTodo情報を返却する
+            if (user != null)
+                return View(user.Todos);
+            
+            // User情報が取得できない場合は空のTodoリストを返却する
+            return View(new List<Todo>());
         }
 
         // GET: Todoes/Details/5
@@ -47,11 +56,21 @@ namespace TodoApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Todoes.Add(todo);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                // ログインしているユーザーの情報をDBから取得
+                User user = db.Users.Where(item => item.UserName == User.Identity.Name).FirstOrDefault();
+
+                // 取得してきたUser情報がNullでなければ、DBにTodo情報を追加する
+                if (user != null)
+                {
+                    // Todoのユーザー情報を更新
+                    todo.User = user;
+                    db.Todoes.Add(todo);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
             }
 
+            // User情報が取得できなければTodo画面に戻る
             return View(todo);
         }
 

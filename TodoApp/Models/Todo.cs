@@ -30,7 +30,11 @@ namespace TodoApp.Models
         /// <summary>
         /// 完了フラグ
         /// </summary>
-        [DisplayName("期限")]
+        [DisplayName("完了")]
         public bool Done { get; set; }
+        /// <summary>
+        /// ユーザークラス情報
+        /// </summary>
+        public virtual User User { get; set; }
     }
 }
