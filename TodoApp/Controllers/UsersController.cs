@@ -120,10 +120,11 @@ namespace TodoApp.Controllers
                 if (dbUser == null)
                     return HttpNotFound();
 
-                // DBから取得したユーザー名 => 画面で入力したユーザー名へ変換
-                // ユーザー名の変更がある場合に限る
-                if (!dbUser.UserName.Equals(user.UserName))
-                    dbUser.UserName = user.UserName;
+                // ユーザー名の変更は禁止
+                // // DBから取得したユーザー名 => 画面で入力したユーザー名へ変換
+                // // => ユーザー名の変更がある場合に限る
+                // if (!dbUser.UserName.Equals(user.UserName))
+                //     dbUser.UserName = user.UserName;
 
                 // DBから取得したパスワード => 画面で入力したパスワードへ変換
                 // パスワードの変更がある場合に限る => ★ ハッシュ化された内容を画面に入力してしまうと、ログイン時にパスワードが一致しなくなると思う
