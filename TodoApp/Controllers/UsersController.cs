@@ -95,9 +95,20 @@ namespace TodoApp.Controllers
             {
                 return HttpNotFound();
             }
+
+            // DBから取得した情報をUserEditViewModelに登録する
+            UserEditViewModel vModel = new UserEditViewModel()
+            {
+                Id = user.Id,
+                UserName = user.UserName
+            };
+
             // ロール情報を取得
             this.SetRoles(user.Roles);
-            return View(user);
+
+            // View情報を返却
+            // return View(user);
+            return View(vModel);
         }
 
         // POST: Users/Edit/5
@@ -105,7 +116,8 @@ namespace TodoApp.Controllers
         // 詳細については、https://go.microsoft.com/fwlink/?LinkId=317598 をご覧ください。
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,UserName,Password,RoleIds")] User user)
+        // public ActionResult Edit([Bind(Include = "Id,UserName,Password,RoleIds")] User user)
+        public ActionResult Edit([Bind(Include = "Id,UserName,Password,RoleIds")] UserEditViewModel user)
         {
             // 画面で選択したロール情報をDBから取得する
             // => TodoesテーブルのRolesカラムからロールIDが一致する情報を取得
@@ -128,9 +140,12 @@ namespace TodoApp.Controllers
 
                 // DBから取得したパスワード => 画面で入力したパスワードへ変換
                 // パスワードの変更がある場合に限る => ★ ハッシュ化された内容を画面に入力してしまうと、ログイン時にパスワードが一致しなくなると思う
-                if (!dbUser.Password.Equals(user.Password))
+                // ユーザーが任意の文字列を入力した場合に限る
+                // if (!dbUser.Password.Equals(user.Password))
+                if (!String.IsNullOrEmpty(user.Password) && !dbUser.Password.Equals(user.Password))
                     // DBに反映するのはハッシュ化されたパスワード
-                    dbUser.Password = this.membershipProvider.GeneratePasswordHash(user.UserName, user.Password);
+                    // dbUser.Password = this.membershipProvider.GeneratePasswordHash(user.UserName, user.Password);
+                    dbUser.Password = this.membershipProvider.GeneratePasswordHash(dbUser.UserName, user.Password);
 
                 // DBに登録されているロール情報をクリア
                 dbUser.Roles.Clear();
@@ -144,7 +159,7 @@ namespace TodoApp.Controllers
             }
 
             // ロール情報取得 => 画面で指定した内容が消えないようにする為 
-            this.SetRoles(user.Roles);
+            this.SetRoles(roles);
             return View(user);
         }
 
